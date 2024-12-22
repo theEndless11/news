@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Platform</title>
+    <style>
+        /* Apply a gradient background */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to right, #ff7e5f, #feb47b); /* Gradient effect */
+            color: white;
+            display: flex;
+            justify-content: flex-start;
+            align-items: flex-start;
+            flex-direction: column;
+            height: 100%;
+            text-align: center;
+            padding: 20px;
+            overflow-y: auto;  /* Enables scrolling when content overflows */
+        }
+
+        /* Section for catchy titles and themes */
+        .header {
+            text-align: center;
+            padding: 30px 20px;
+            background: rgba(0, 0, 0, 0.6); /* Dark background for the header */
+            border-radius: 15px;
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #f0f0f0;
+        }
+
+        /* Styling the container for username input */
+        .container {
+            background-color: rgba(255, 255, 255, 0.9); /* Slightly transparent white background */
+            max-width: 450px;
+            width: 100%;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0px 15px 30px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 1s ease-in-out;
+            margin-bottom: 40px;
+            margin-top: 20px;
+        }
+
+        /* Animation for fading in */
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        h2 {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        /* Styling the input field */
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            border-color: #4CAF50;
+            box-shadow: 0 0 8px rgba(0, 255, 0, 0.5);
+        }
+
+        /* Styling the button */
+        button {
+            padding: 12px 25px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        /* Section for explaining why choose the app */
+        .why-choose {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: left;
+            line-height: 1.6;
+            color: #f8f8f8;
+        }
+
+        .why-choose h3 {
+            color: #fff;
+            font-size: 1.5rem;
+            margin-top: 40px;
+        }
+
+        .why-choose p {
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        .why-choose ul {
+            list-style-type: square;
+            font-size: 1.1rem;
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .why-choose a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+            border-bottom: 2px solid #fff;
+            transition: color 0.3s;
+        }
+
+        .why-choose a:hover {
+            color: #4CAF50;
+        }
+
+        /* Responsive design for small screens */
+        @media (max-width: 480px) {
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            button {
+                padding: 10px 20px;
+                font-size: 1rem;
+            }
+
+            .why-choose h3 {
+                font-size: 1.2rem;
+            }
+
+            .why-choose p {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with catchy title -->
+    <div class="header">
+        <h1>Chat Your Way!</h1>
+        <p>Connect with friends and strangers around the world in a fun and interactive way. Join us now!</p>
+    </div>
+
+    <!-- Username input form -->
+    <div class="container">
+        <h2>Enter Your Username</h2>
+        <input type="text" id="username" placeholder="Choose a username">
+        <button onclick="registerUser()">Start Chatting</button>
+    </div>
+
+    <!-- Why Choose Our App Section -->
+    <div class="why-choose">
+        <h3>Why Choose Our Chat Platform?</h3>
+        <p>Our chat platform is designed to be the most engaging and user-friendly place for you to connect. Here's why:</p>
+        
+        <ul>
+            <li><strong>Real-Time Communication</strong> - Enjoy instant, live chats with anyone across the globe.</li>
+            <li><strong>Secure Messaging</strong> - We ensure your messages are private and protected at all times.</li>
+            <li><strong>Customizable Profiles</strong> - Personalize your profile with photos, status messages, and more!</li>
+            <li><strong>Community and Support</strong> - Join vibrant communities and get support whenever needed.</li>
+        </ul>
+
+        <h3>Join the Conversation!</h3>
+        <p>Start chatting right now by entering your username above. If you’re not sure yet, learn more about our <a href="#">features</a> and <a href="#">support team</a>!</p>
+    </div>
+
+    <script>
+        function registerUser() {
+            let username = document.getElementById('username').value.trim();
+            if (username !== "") {
+                localStorage.setItem('username', username);
+                window.location.href = "chat.html";
+            } else {
+                alert('Please enter a username!');
+            }
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+

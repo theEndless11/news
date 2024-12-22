@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Platform</title>
+    <style>
+        body { font-family: 'Arial', sans-serif; margin: 0; padding: 0; background-color: black; text-align: center; }
+        .container
+         { max-width: 400px; margin: 50px auto; padding: 20px; background-color: white; border-radius: 10px; box-shadow: 0px 4px 8px rgba(0,0,0,0.1); }
+        h2 { color: #333; }
+        input[type="text"] { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #ccc; }
+        button { padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer; border-radius: 5px; }
+        button:hover { background-color: #45a049; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Welcome to the Chat Platform</h2>
+        <input type="text" id="username" placeholder="Enter your username">
+        <button onclick="registerUser()">Start Chatting</button>
+    </div>
+
+    <script>
+        function registerUser() {
+            let username = document.getElementById('username').value.trim();
+            if (username !== "") {
+                localStorage.setItem('username', username);
+                window.location.href = "chat.html";
+            } else {
+                alert('Please enter a username!');
+            }
+        }
+    </script>
+</body>
+</html>
+

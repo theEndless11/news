@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Platform</title>
+    <script src="https://cdn.ably.com/lib/ably.min.js"></script>
+    <style>
+        body { font-family: 'Arial', sans-serif; margin: 0; padding: 0; background-color: #f4f4f9; }
+        h2 { text-align: center; color: #333; }
+        #chat-section { width: 100%; margin: 0 auto; padding: 20px; max-width: 800px; }
+        #chatbox {
+            width: 40%;
+            height: 200px;
+            overflow-y: scroll;
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: #fff;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            border-radius: 5px;
+        }
+        .message { margin-bottom: 10px; }
+        .message span { font-size: 12px; color: grey; }
+        .user-list { margin-top: 20px; }
+        .user-list ul { list-style: none; padding: 0; }
+        .user-list li { padding: 5px; background-color: #e0e0e0; margin: 5px 0; border-radius: 4px; }
+        input[type="text"] { width: 75%; padding: 10px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 10px 15px; background-color: #4CAF50; color: white; border: none; cursor: pointer; border-radius: 4px; }
+        button:hover { background-color: #45a049; }
+        input[type="file"] { width: 18%; background-color: #f4f4f9; border: none; cursor: pointer; border-radius: 4px; }
+        #search-box { padding: 10px; width: 40%; margin-top: 10px; border-radius: 5px; border: 1px solid #ccc; }
+        .notification { color: #888; font-size: 14px; font-style: italic; margin-bottom: 10px; }
+        .user-list { max-height: 200px; overflow-y: scroll; }
+    </style>
+</head>
+<body>
+
+<h2>Welcome to the Chat</h2>
+
+<div id="chat-section">
+    <h3>Public Chat Room</h3>
+    <div id="chatbox"></div>
+
+    <div>
+        <input type="text" id="message" placeholder="Type a message" onkeydown="checkEnter(event)">
+        <input type="file" id="file-input" accept="image/*,video/*">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <h4>Users:</h4>
+    <input type="text" id="search-box" placeholder="Search for users" oninput="searchUsers()">
+    <div class="user-list">
+        <ul id="userList"></ul>
+    </div>
+</div>
+
+<script>
+    let ably = new Ably.Realtime('knH84g.xyERFQ:_YgFb-hkCXQNM2gCyRhIt2Q0NWuKd2JmfNhLZILR7DE');
+    let channel = ably.channels.get('chat-room');
+    let username = localStorage.getItem('username');
+    let users = [];
+
+    if (!username) {
+        window.location.href = "index.html";
+    }
+
+    // DOM elements
+    let messageInput = document.getElementById('message');
+    let chatbox = document.getElementById('chatbox');
+    let fileInput = document.getElementById('file-input');
+    let userList = document.getElementById('userList');
+    let searchBox = document.getElementById('search-box');
+
+    // Send text and file message
+    function sendMessage() {
+        let message = messageInput.value.trim();
+        let file = fileInput.files[0];
+
+        if (message || file) {
+            let time = new Date().toLocaleTimeString();
+            let newMessage = { user: username, text: message, time: time, file: file ? URL.createObjectURL(file) : null };
+
+            // Publish message to Ably channel
+            channel.publish('message', newMessage);
+
+            // Display message in chat
+            let msgElement = document.createElement('div');
+            msgElement.classList.add('message');
+            msgElement.innerHTML = `<strong>${newMessage.user}</strong> [${newMessage.time}]: ${newMessage.text}`;
+
+            if (newMessage.file) {
+                let mediaElement = document.createElement(newMessage.file.includes('image') ? 'img' : 'video');
+                mediaElement.src = newMessage.file;
+                mediaElement.style.maxWidth = '200px';
+                mediaElement.style.marginTop = '10px';
+                msgElement.appendChild(mediaElement);
+            }
+
+            chatbox.appendChild(msgElement);
+            messageInput.value = '';
+            fileInput.value = '';
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
+    }
+
+    // Handle new messages
+    channel.subscribe('message', (msg) => {
+        let msgElement = document.createElement('div');
+        msgElement.classList.add('message');
+        msgElement.innerHTML = `<strong>${msg.data.user}</strong> [${msg.data.time}]: ${msg.data.text}`;
+
+        if (msg.data.file) {
+            let mediaElement = document.createElement(msg.data.file.includes('image') ? 'img' : 'video');
+            mediaElement.src = msg.data.file;
+            mediaElement.style.maxWidth = '200px';
+            mediaElement.style.marginTop = '10px';
+            msgElement.appendChild(mediaElement);
+        }
+
+        chatbox.appendChild(msgElement);
+        chatbox.scrollTop = chatbox.scrollHeight;
+    });
+
+    // Handle user joining and leaving
+    channel.subscribe('user-action', (msg) => {
+        if (msg.data.action === 'join') {
+            users.push(msg.data.username);
+        } else if (msg.data.action === 'leave') {
+            users = users.filter(user => user !== msg.data.username);
+        }
+        updateUserList();
+    });
+
+    // Update the list of available users
+    function updateUserList() {
+        userList.innerHTML = '';
+        users.forEach(user => {
+            let userItem = document.createElement('li');
+            userItem.textContent = user;
+            userList.appendChild(userItem);
+        });
+    }
+
+    // Search users in the list
+    function searchUsers() {
+        let query = searchBox.value.toLowerCase();
+        let filteredUsers = users.filter(user => user.toLowerCase().includes(query));
+        
+        userList.innerHTML = '';
+        filteredUsers.forEach(user => {
+            let userItem = document.createElement('li');
+            userItem.textContent = user;
+            userList.appendChild(userItem);
+        });
+    }
+
+    // Notify other users of your join
+    channel.publish('user-action', { action: 'join', username: username });
+
+    // Enter key sends message
+    messageInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    });
+</script>
+
+</body>
+</html>
+
+
